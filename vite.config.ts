@@ -10,6 +10,9 @@ export default defineConfig({
     tailwindcss(),
     federation({
       name: "mymart_shell",
+      // Remote declarations are maintained locally in src/remotes.d.ts.
+      // Skip development-time type archive requests to remote origins.
+      dts: false,
       remotes: {
         billing: {
           type: "module",
@@ -38,6 +41,7 @@ export default defineConfig({
         "react/": { singleton: true },
         "react-dom": { singleton: true },
         "react-dom/": { singleton: true },
+        "react-router": { singleton: true },
       },
       dev: { remoteHmr: true },
     }),

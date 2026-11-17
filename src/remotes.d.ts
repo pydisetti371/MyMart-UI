@@ -1,14 +1,14 @@
 declare module "billing/App" {
-  const BillingApp: import("react").ComponentType;
+  const BillingApp: import("react").ComponentType<{ sidebarOpen: boolean }>;
   export default BillingApp;
 }
 
 declare module "products/App" {
-  const ProductsApp: import("react").ComponentType;
-  export default ProductsApp
+  const ProductsApp: import("react").ComponentType<{ sidebarOpen: boolean }>;
+  export default ProductsApp;
 }
 
 declare module "reports/App" {
-  const ReportsApp: import("react").ComponentType;
-  export default ReportsApp
+  const ReportsApp: import("react").ComponentType<{ sidebarOpen: boolean }>;
+  export default ReportsApp;
 }

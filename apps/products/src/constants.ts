@@ -1,0 +1,88 @@
+export const productsCopy = {
+  documentTitle: "MyMart | Products",
+  currencySymbol: "\u20B9",
+  navigation: {
+    ariaLabel: "Main navigation",
+    billing: "Billing",
+    products: "Products",
+    reports: "Reports",
+  },
+  store: {
+    date: "Mon, 16 Jun 2025",
+    time: "10:24 AM",
+  },
+  page: {
+    eyebrow: "MYMART INVENTORY",
+    title: "Products",
+    subtitle: "Manage your store catalogue and stock levels.",
+    addProduct: "Add Product",
+    addProductNotice: "Product creation will be connected to inventory soon.",
+    overviewAriaLabel: "Product inventory overview",
+  },
+  inventory: {
+    totalProducts: "Total Products",
+    totalProductsDescription: "Across your catalogue",
+    inStock: "In Stock",
+    inStockDescription: "Ready to sell",
+    lowStock: "Low Stock",
+    lowStockDescription: "Needs replenishment",
+    catalogueValue: "Catalogue Value",
+    catalogueValueDescription: "At selling price",
+  },
+  catalogue: {
+    title: "Product Catalogue",
+    description: "Browse your current products and availability.",
+    searchAriaLabel: "Search products",
+    searchPlaceholder: "Search products",
+    columns: {
+      product: "Product",
+      sku: "SKU",
+      category: "Category",
+      sellingPrice: "Selling Price",
+      stock: "Stock",
+      status: "Status",
+    },
+    units: (count: number) => `${count} units`,
+    lowStockStatus: "Low stock",
+    inStockStatus: "In stock",
+    noSearchResults: "No products match your search.",
+  },
+};
+
+export const productsMockData = [
+  {
+    name: "Rice 1kg",
+    category: "Groceries",
+    sku: "GRC-1001",
+    price: 110,
+    stock: 38,
+  },
+  {
+    name: "Sunflower Oil 1L",
+    category: "Groceries",
+    sku: "GRC-1002",
+    price: 160,
+    stock: 24,
+  },
+  {
+    name: "Lux Soap",
+    category: "Personal Care",
+    sku: "PCA-2001",
+    price: 45,
+    stock: 12,
+  },
+  {
+    name: "Tata Tea 250g",
+    category: "Beverages",
+    sku: "BEV-3001",
+    price: 145,
+    stock: 6,
+  },
+  {
+    name: "Dishwash Liquid",
+    category: "Household",
+    sku: "HOU-4001",
+    price: 89,
+    stock: 3,
+  },
+];
