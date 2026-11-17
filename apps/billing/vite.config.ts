@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     federation({
       name: "billing",
+      dts: false,
       filename: "remoteEntry.js",
       exposes: {
         "./App": "./src/App.tsx",
@@ -17,6 +18,7 @@ export default defineConfig({
         "react/": { singleton: true },
         "react-dom": { singleton: true },
         "react-dom/": { singleton: true },
+        "react-router": { singleton: true },
       },
     }),
   ],
