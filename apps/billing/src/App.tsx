@@ -12,6 +12,21 @@ type Product = {
   quantity: number;
 };
 
+type ReceiptSnapshot = {
+  invoiceNumber: string;
+  generatedAt: Date;
+  customerName: string;
+  mobileNumber: string;
+  items: Product[];
+  totalMrp: number;
+  sellingAmount: number;
+  itemSavings: number;
+  billDiscount: number;
+  discountAmount: number;
+  payable: number;
+  paymentMethod: string;
+};
+
 type IconName =
   | "cart"
   | "receipt"
@@ -38,6 +53,7 @@ const rupees = new Intl.NumberFormat("en-IN", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
+const mobileNumberPattern = /^\d{10}$/;
 
 function formatRupees(amount: number) {
   return `${billingCopy.currencySymbol} ${rupees.format(amount)}`;
@@ -239,6 +255,10 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
     billingCopy.defaults.paymentMethod,
   );
   const [notice, setNotice] = useState("");
+  const [generatedReceipt, setGeneratedReceipt] =
+    useState<ReceiptSnapshot | null>(null);
+  const [isGeneratingBill, setIsGeneratingBill] = useState(false);
+  const [billModalOpen, setBillModalOpen] = useState(false);
 
   const summary = useMemo(() => {
     const totalMrp = items.reduce(
@@ -301,6 +321,7 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
       ]);
     }
     setQuantity(1);
+    setGeneratedReceipt(null);
     setNotice("");
   };
 
@@ -311,29 +332,58 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
       return;
     }
     setBillDiscount(value);
+    setGeneratedReceipt(null);
     setNotice("");
   };
 
-  const generateBill = () => {
+  const generateBill = async () => {
     const normalizedCustomerName = customerName.trim();
     const normalizedMobileNumber = mobileNumber.trim();
 
     if (!normalizedCustomerName || !normalizedMobileNumber) {
+      setGeneratedReceipt(null);
       setNotice(billingCopy.messages.customerRequired);
       return;
     }
+    if (!mobileNumberPattern.test(normalizedMobileNumber)) {
+      setGeneratedReceipt(null);
+      setNotice(billingCopy.messages.invalidCustomerMobile);
+      return;
+    }
 
-    setNotice(
-      items.length
-        ? billingCopy.messages.billGenerated(
-            paymentMethod,
-            normalizedCustomerName,
-          )
-        : billingCopy.messages.emptyBill,
-    );
+    if (!items.length) {
+      setGeneratedReceipt(null);
+      setNotice(billingCopy.messages.emptyBill);
+      return;
+    }
+
+    const generatedAt = new Date();
+    const receipt: ReceiptSnapshot = {
+      invoiceNumber: `VM-${generatedAt.getTime()}`,
+      generatedAt,
+      customerName: normalizedCustomerName,
+      mobileNumber: normalizedMobileNumber,
+      items: items.map((item) => ({ ...item })),
+      totalMrp: summary.totalMrp,
+      sellingAmount: summary.sellingAmount,
+      itemSavings: summary.itemSavings,
+      billDiscount,
+      discountAmount: summary.discountAmount,
+      payable: summary.payable,
+      paymentMethod,
+    };
+
+    setIsGeneratingBill(true);
+    setBillModalOpen(true);
+    setNotice("");
+    await new Promise((resolve) => window.setTimeout(resolve, 750));
+    setGeneratedReceipt(receipt);
+    setIsGeneratingBill(false);
   };
 
   const changeQuantity = (id: number, delta: number) => {
+    setGeneratedReceipt(null);
+    setNotice("");
     setItems((current) =>
       current.map((item) =>
         item.id === id
@@ -343,8 +393,11 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
     );
   };
 
-  const removeItem = (id: number) =>
+  const removeItem = (id: number) => {
+    setGeneratedReceipt(null);
+    setNotice("");
     setItems((current) => current.filter((item) => item.id !== id));
+  };
 
   return (
     <div className="billing-shell">
@@ -384,6 +437,7 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
             <button
               className="print-button"
               onClick={() => window.print()}
+              disabled={!generatedReceipt}
               type="button"
             >
               <Icon name="printer" size={19} /> {billingCopy.page.printReceipt}
@@ -415,7 +469,11 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                     <Icon name="user" size={20} />
                     <input
                       aria-label={billingCopy.customer.nameAriaLabel}
-                      onChange={(event) => setCustomerName(event.target.value)}
+                      onChange={(event) => {
+                        setCustomerName(event.target.value);
+                        setGeneratedReceipt(null);
+                        setNotice("");
+                      }}
                       placeholder={billingCopy.customer.name}
                       required
                       value={customerName}
@@ -425,8 +483,16 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                     <Icon name="phone" size={20} />
                     <input
                       aria-label={billingCopy.customer.mobileAriaLabel}
-                      inputMode="tel"
-                      onChange={(event) => setMobileNumber(event.target.value)}
+                      inputMode="numeric"
+                      maxLength={10}
+                      onChange={(event) => {
+                        setMobileNumber(
+                          event.target.value.replace(/\D/g, "").slice(0, 10),
+                        );
+                        setGeneratedReceipt(null);
+                        setNotice("");
+                      }}
+                      pattern="[0-9]{10}"
                       placeholder={billingCopy.customer.mobileNumber}
                       required
                       type="tel"
@@ -697,7 +763,11 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                     aria-pressed={paymentMethod === method}
                     className={`payment-option${paymentMethod === method ? " selected" : ""}`}
                     key={method}
-                    onClick={() => setPaymentMethod(method)}
+                    onClick={() => {
+                      setPaymentMethod(method);
+                      setGeneratedReceipt(null);
+                      setNotice("");
+                    }}
                     type="button"
                   >
                     <Icon
@@ -715,19 +785,228 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                 ))}
               </div>
               <button
+                aria-busy={isGeneratingBill}
                 className="generate-button"
+                disabled={isGeneratingBill}
                 onClick={generateBill}
                 type="button"
               >
-                <span className="check-circle">
-                  <Icon name="check" size={17} />
-                </span>{" "}
-                {billingCopy.summary.generate}
+                {isGeneratingBill ? (
+                  <>
+                    <span aria-hidden="true" className="inline-spinner" />
+                    {billingCopy.messages.generatingBill}
+                  </>
+                ) : (
+                  <>
+                    <span className="check-circle">
+                      <Icon name="check" size={17} />
+                    </span>{" "}
+                    {billingCopy.summary.generate}
+                  </>
+                )}
               </button>
             </div>
           </aside>
         </div>
+        {generatedReceipt && (
+          <section
+            aria-label={billingCopy.messages.generatedReceipt}
+            className="receipt-preview-section"
+          >
+            <p className="receipt-preview-hint">
+              {billingCopy.messages.receiptReady}
+            </p>
+            <article className="receipt-paper" id="receipt-print-area">
+              <header className="receipt-header">
+                <h2>{billingCopy.receipt.merchantName}</h2>
+                <p>{billingCopy.receipt.subtitle}</p>
+                <strong>{billingCopy.receipt.customerCopy}</strong>
+              </header>
+
+              <p className="receipt-demo-notice">
+                {billingCopy.receipt.demoNotice}
+              </p>
+
+              <div className="receipt-meta">
+                <div>
+                  <span>{billingCopy.receipt.invoiceNumber}</span>
+                  <strong>{generatedReceipt.invoiceNumber}</strong>
+                </div>
+                <div>
+                  <span>{billingCopy.receipt.date}</span>
+                  <strong>
+                    {new Intl.DateTimeFormat("en-IN", {
+                      dateStyle: "medium",
+                    }).format(generatedReceipt.generatedAt)}
+                  </strong>
+                </div>
+                <div>
+                  <span>{billingCopy.receipt.time}</span>
+                  <strong>
+                    {new Intl.DateTimeFormat("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    }).format(generatedReceipt.generatedAt)}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="receipt-divider" />
+
+              <section className="receipt-customer">
+                <h3>{billingCopy.customer.sectionTitle}</h3>
+                <p>
+                  <span>{billingCopy.receipt.customerName}</span>
+                  <strong>{generatedReceipt.customerName}</strong>
+                </p>
+                <p>
+                  <span>{billingCopy.receipt.mobileNumber}</span>
+                  <strong>{generatedReceipt.mobileNumber}</strong>
+                </p>
+              </section>
+
+              <div className="receipt-divider" />
+
+              <section aria-label={billingCopy.receipt.items}>
+                <h3 className="receipt-section-title">
+                  {billingCopy.receipt.items}
+                </h3>
+                {generatedReceipt.items.map((item) => {
+                  const itemDiscount = item.mrp
+                    ? Math.max(0, ((item.mrp - item.price) / item.mrp) * 100)
+                    : 0;
+                  const itemSavings = Math.max(
+                    0,
+                    (item.mrp - item.price) * item.quantity,
+                  );
+
+                  return (
+                    <div className="receipt-item" key={item.id}>
+                      <strong className="receipt-item-name">{item.name}</strong>
+                      <div className="receipt-line">
+                        <span>
+                          {item.quantity} × {formatRupees(item.price)}
+                        </span>
+                        <strong>{formatRupees(item.price * item.quantity)}</strong>
+                      </div>
+                      <p className="receipt-item-detail">
+                        {item.category} · MRP {formatRupees(item.mrp)}
+                      </p>
+                      <p className="receipt-item-detail">
+                        Discount {itemDiscount.toFixed(2)}% · Savings{" "}
+                        {formatRupees(itemSavings)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </section>
+
+              <div className="receipt-divider" />
+
+              <div className="receipt-totals">
+                <p>
+                  <span>{billingCopy.receipt.totalMrp}</span>
+                  <strong>{formatRupees(generatedReceipt.totalMrp)}</strong>
+                </p>
+                <p>
+                  <span>{billingCopy.receipt.itemSavings}</span>
+                  <strong>{formatRupees(generatedReceipt.itemSavings)}</strong>
+                </p>
+                <p>
+                  <span>{billingCopy.receipt.subtotal}</span>
+                  <strong>{formatRupees(generatedReceipt.sellingAmount)}</strong>
+                </p>
+                <p>
+                  <span>
+                    {billingCopy.receipt.retailDiscount} (
+                    {generatedReceipt.billDiscount}%)
+                  </span>
+                  <strong>
+                    − {formatRupees(generatedReceipt.discountAmount)}
+                  </strong>
+                </p>
+                <p className="receipt-total">
+                  <span>{billingCopy.receipt.total}</span>
+                  <strong>{formatRupees(generatedReceipt.payable)}</strong>
+                </p>
+              </div>
+
+              <div className="receipt-divider" />
+
+              <div className="receipt-payment">
+                <p>
+                  <span>{billingCopy.receipt.paymentMethod}</span>
+                  <strong>{generatedReceipt.paymentMethod}</strong>
+                </p>
+                <p className="receipt-mock-payment">
+                  {billingCopy.receipt.mockPayment}
+                </p>
+              </div>
+
+              <footer className="receipt-footer">
+                <p>{billingCopy.receipt.thankYou}</p>
+                <span>*** CUSTOMER COPY ***</span>
+              </footer>
+            </article>
+          </section>
+        )}
       </main>
+      {billModalOpen && (
+        <div className="bill-modal-backdrop">
+          <section
+            aria-labelledby="bill-modal-title"
+            aria-modal="true"
+            className="bill-modal"
+            role="dialog"
+          >
+            {isGeneratingBill ? (
+              <div aria-live="polite" className="bill-modal-loading" role="status">
+                <span aria-hidden="true" className="bill-modal-spinner" />
+                <h2 id="bill-modal-title">
+                  {billingCopy.messages.generatingBill}
+                </h2>
+                <p>{billingCopy.messages.preparingReceipt}</p>
+              </div>
+            ) : generatedReceipt ? (
+              <>
+                <div aria-hidden="true" className="bill-modal-success-icon">
+                  <Icon name="check" size={26} />
+                </div>
+                <h2 id="bill-modal-title">
+                  {billingCopy.messages.billGeneratedTitle}
+                </h2>
+                <p className="bill-modal-description">
+                  {billingCopy.messages.billGeneratedDescription}
+                </p>
+                <div className="bill-modal-summary">
+                  <span>{billingCopy.receipt.invoiceNumber}</span>
+                  <strong>{generatedReceipt.invoiceNumber}</strong>
+                  <span>{billingCopy.summary.finalPayable}</span>
+                  <strong>{formatRupees(generatedReceipt.payable)}</strong>
+                </div>
+                <div className="bill-modal-actions">
+                  <button
+                    className="bill-modal-secondary"
+                    onClick={() => setBillModalOpen(false)}
+                    type="button"
+                  >
+                    {billingCopy.messages.done}
+                  </button>
+                  <button
+                    className="bill-modal-primary"
+                    onClick={() => window.print()}
+                    type="button"
+                  >
+                    <Icon name="printer" size={18} />
+                    {billingCopy.page.printReceipt}
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </section>
+        </div>
+      )}
     </div>
   );
 }
