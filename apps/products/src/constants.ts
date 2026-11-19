@@ -1,8 +1,9 @@
 export const productsCopy = {
-  documentTitle: "MyMart | Products",
+  documentTitle: "VMart | Products",
   currencySymbol: "\u20B9",
   navigation: {
     ariaLabel: "Main navigation",
+    comingSoon: "Coming soon",
     billing: "Billing",
     products: "Products",
     reports: "Reports",
@@ -12,7 +13,7 @@ export const productsCopy = {
     time: "10:24 AM",
   },
   page: {
-    eyebrow: "MYMART INVENTORY",
+    eyebrow: "VMART INVENTORY",
     title: "Products",
     subtitle: "Manage your store catalogue and stock levels.",
     addProduct: "Add Product",

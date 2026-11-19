@@ -4,19 +4,31 @@ import { productsCopy, productsMockData } from "./constants";
 import "./App.css";
 
 type NavItem = {
+  enabled: boolean;
   href: string;
   icon: string;
   label: string;
 };
 
 const navigation: NavItem[] = [
-  { href: "/billing", icon: "\u25A4", label: productsCopy.navigation.billing },
   {
+    enabled: true,
+    href: "/billing",
+    icon: "\u25A4",
+    label: productsCopy.navigation.billing,
+  },
+  {
+    enabled: false,
     href: "/products",
     icon: "\u25A3",
     label: productsCopy.navigation.products,
   },
-  { href: "/reports", icon: "\u25A5", label: productsCopy.navigation.reports },
+  {
+    enabled: false,
+    href: "/reports",
+    icon: "\u25A5",
+    label: productsCopy.navigation.reports,
+  },
 ];
 
 const money = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 });
@@ -30,6 +42,18 @@ function StoreNavLink({ item }: { item: NavItem }) {
       <span>{item.label}</span>
     </>
   );
+
+  if (!item.enabled) {
+    return (
+      <span
+        aria-disabled="true"
+        className="products-nav-link is-disabled"
+        title={productsCopy.navigation.comingSoon}
+      >
+        {content}
+      </span>
+    );
+  }
 
   if (item.href.startsWith("/")) {
     return (

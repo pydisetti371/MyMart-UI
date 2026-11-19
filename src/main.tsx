@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 import "./index.css";
 import App from "./App.tsx";
 import { hostCopy } from "./constants";
+import { AuthProvider } from "./auth/AuthProvider";
 
 document.title = hostCopy.documentTitle;
 document
@@ -13,7 +14,9 @@ document
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

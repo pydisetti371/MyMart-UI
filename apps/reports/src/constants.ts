@@ -1,8 +1,9 @@
 export const reportsCopy = {
-  documentTitle: "MyMart | Reports",
+  documentTitle: "VMart | Reports",
   currencySymbol: "\u20B9",
   navigation: {
     ariaLabel: "Main navigation",
+    comingSoon: "Coming soon",
     billing: "Billing",
     products: "Products",
     reports: "Reports",

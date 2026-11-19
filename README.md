@@ -1,6 +1,6 @@
-# MyMart UI
+# VMart UI
 
-MyMart UI is a React, TypeScript, and Vite micro frontend workspace. The root project is the host shell. Billing, Products, and Reports are separate Vite apps that the host loads with Module Federation.
+VMart UI is a React, TypeScript, and Vite micro frontend workspace. The root project is the host shell. Billing, Products, and Reports are separate Vite apps that the host loads with Module Federation.
 
 ## Prerequisites
 
@@ -17,16 +17,15 @@ Clone the repository, open a terminal in the repository root (`MyMart-UI`), then
 npm ci
 ```
 
-Start the host and all three remotes. Run each command in a separate terminal, from the repository root:
+Start the host and all three remotes from the repository root:
 
 ```sh
-npm run dev:billing
-npm run dev:products
-npm run dev:reports
 npm run dev
 ```
 
-Open the host at <http://localhost:5173>.
+This starts the host at <http://localhost:5173>, Billing at <http://localhost:5174>, Products at <http://localhost:5175>, and Reports at <http://localhost:5176>. Open the host at <http://localhost:5173> to use the navigation. Press Ctrl+C to stop all four servers.
+
+To run only the host, use `npm run dev:host`. To develop one remote independently, use its `npm run dev:billing`, `npm run dev:products`, or `npm run dev:reports` command.
 
 | App | Local URL | Host route |
 | --- | --- | --- |
@@ -52,13 +51,13 @@ The host registers remote entry URLs in the root `vite.config.ts` and lazy-loads
 
 ## Useful commands
 
-Run a single app from the repository root:
+Run the complete workspace, or run individual apps from the repository root:
 
 ```sh
 npm run dev:billing
 npm run dev:products
 npm run dev:reports
-npm run dev
+npm run dev:host
 ```
 
 Build the host or one remote:
