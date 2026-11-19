@@ -3,9 +3,24 @@ import { reportsCopy, reportsMockData } from "./constants";
 import "./App.css";
 
 const navigation = [
-  { href: "/billing", icon: "\u25A4", label: reportsCopy.navigation.billing },
-  { href: "/products", icon: "\u25A3", label: reportsCopy.navigation.products },
-  { href: "/reports", icon: "\u25A5", label: reportsCopy.navigation.reports },
+  {
+    enabled: true,
+    href: "/billing",
+    icon: "\u25A4",
+    label: reportsCopy.navigation.billing,
+  },
+  {
+    enabled: false,
+    href: "/products",
+    icon: "\u25A3",
+    label: reportsCopy.navigation.products,
+  },
+  {
+    enabled: false,
+    href: "/reports",
+    icon: "\u25A5",
+    label: reportsCopy.navigation.reports,
+  },
 ];
 
 const money = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
@@ -19,6 +34,18 @@ function StoreNavLink({ item }: { item: (typeof navigation)[number] }) {
       <span>{item.label}</span>
     </>
   );
+
+  if (!item.enabled) {
+    return (
+      <span
+        aria-disabled="true"
+        className="reports-nav-link is-disabled"
+        title={reportsCopy.navigation.comingSoon}
+      >
+        {content}
+      </span>
+    );
+  }
 
   if (item.href.startsWith("/")) {
     return (

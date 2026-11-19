@@ -36,6 +36,13 @@
 .reports-nav-link:hover {
   background: #2a3c62;
 }
+.reports-nav-link.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.reports-nav-link.is-disabled:hover {
+  background: transparent;
+}
 .reports-nav-link.active {
   color: #fff;
   background: linear-gradient(100deg, #347dea, #2866d4);

@@ -60,6 +60,13 @@
 .nav-link:hover {
   background: #2a3c62;
 }
+.nav-link.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.nav-link.is-disabled:hover {
+  background: transparent;
+}
 .nav-link.active {
   color: #fff;
   background: linear-gradient(100deg, #347dea, #2866d4);
@@ -190,9 +197,9 @@
   flex: 0 0 auto;
   color: #233454;
 }
-.optional {
-  color: #647087;
-  font-weight: 480;
+.required-indicator {
+  color: #c2413b;
+  font-weight: 750;
 }
 .customer-fields {
   display: grid;

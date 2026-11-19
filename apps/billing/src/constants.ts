@@ -1,11 +1,12 @@
 export const billingCopy = {
-  documentTitle: "MyMart | Billing",
+  documentTitle: "VMart | Billing",
   currencySymbol: "\u20B9",
   navigation: {
     billing: "Billing",
     products: "Products",
     reports: "Reports",
     ariaLabel: "Main navigation",
+    comingSoon: "Coming soon",
   },
   store: {
     date: "Mon, 16 Jun 2025",
@@ -20,7 +21,7 @@ export const billingCopy = {
   },
   customer: {
     sectionTitle: "Customer Details",
-    optional: "Optional",
+    required: "Required",
     name: "Customer Name",
     mobileNumber: "Mobile Number",
     nameAriaLabel: "Customer name",
@@ -42,7 +43,7 @@ export const billingCopy = {
     quantity: "Quantity",
     decreaseQuantity: "Decrease quantity",
     increaseQuantity: "Increase quantity",
-    discount: "Discount",
+    discount: "Whole Sale Discount",
     submit: "Add Item to Bill",
   },
   itemsTable: {
@@ -54,7 +55,7 @@ export const billingCopy = {
       quantity: "Qty",
       mrp: "MRP",
       price: "Price",
-      discount: "Discount",
+      discount: "Whole Sale Discount",
       total: "Total",
       action: "Action",
     },
@@ -66,7 +67,7 @@ export const billingCopy = {
     removeItem: (itemName: string) => `Remove ${itemName}`,
   },
   billDiscount: {
-    title: "Apply Bill Discount",
+    title: "Apply Retail Discount",
     percentageAriaLabel: "Bill discount percentage",
     apply: "Apply",
   },
@@ -76,7 +77,7 @@ export const billingCopy = {
     totalMrp: "Total MRP",
     sellingAmount: "Selling Amount",
     itemSavings: "Item Savings",
-    billDiscount: "Bill Discount",
+    billDiscount: "Retail Discount",
     discountAmount: "Bill Discount Amount",
     finalPayable: "Final Payable",
     paymentMethodAriaLabel: "Payment method",
@@ -84,6 +85,8 @@ export const billingCopy = {
     generate: "Generate Bill",
   },
   messages: {
+    customerRequired:
+      "Enter the customer name and mobile number to generate a bill.",
     invalidItem: "Enter a valid item name, price and quantity.",
     invalidDiscount: "Bill discount must be between 0% and 100%.",
     emptyBill: "Add at least one item before generating a bill.",

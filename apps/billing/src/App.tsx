@@ -21,7 +21,6 @@ type IconName =
   | "inventory"
   | "settings"
   | "sun"
-  | "wifi"
   | "user"
   | "phone"
   | "list"
@@ -94,12 +93,6 @@ function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
       <>
         <circle cx="12" cy="12" r="4" />
         <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-      </>
-    ),
-    wifi: (
-      <>
-        <path d="M5 12.5a11 11 0 0 1 14 0M8 15.5a6.5 6.5 0 0 1 8 0M11 18.5a2 2 0 0 1 2 0" />
-        <circle cx="12" cy="21" r=".5" />
       </>
     ),
     user: (
@@ -193,6 +186,18 @@ function SidebarLink({
       <span>{label}</span>
     </>
   );
+
+  if (href === "/products" || href === "/reports") {
+    return (
+      <span
+        aria-disabled="true"
+        className="nav-link is-disabled"
+        title={billingCopy.navigation.comingSoon}
+      >
+        {content}
+      </span>
+    );
+  }
 
   if (href.startsWith("/")) {
     return (
@@ -309,6 +314,25 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
     setNotice("");
   };
 
+  const generateBill = () => {
+    const normalizedCustomerName = customerName.trim();
+    const normalizedMobileNumber = mobileNumber.trim();
+
+    if (!normalizedCustomerName || !normalizedMobileNumber) {
+      setNotice(billingCopy.messages.customerRequired);
+      return;
+    }
+
+    setNotice(
+      items.length
+        ? billingCopy.messages.billGenerated(
+            paymentMethod,
+            normalizedCustomerName,
+          )
+        : billingCopy.messages.emptyBill,
+    );
+  };
+
   const changeQuantity = (id: number, delta: number) => {
     setItems((current) =>
       current.map((item) =>
@@ -357,12 +381,6 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
             <span className="pos-badge">{billingCopy.page.pos}</span>
           </div>
           <div className="top-actions">
-            <span
-              aria-label={billingCopy.page.connected}
-              className="connection"
-            >
-              <Icon name="wifi" />
-            </span>
             <button
               className="print-button"
               onClick={() => window.print()}
@@ -384,8 +402,11 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                   <Icon name="user" size={24} />{" "}
                   <span>
                     {billingCopy.customer.sectionTitle}{" "}
-                    <span className="optional">
-                      ({billingCopy.customer.optional})
+                    <span
+                      aria-label={billingCopy.customer.required}
+                      className="required-indicator"
+                    >
+                      *
                     </span>
                   </span>
                 </h2>
@@ -396,6 +417,7 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                       aria-label={billingCopy.customer.nameAriaLabel}
                       onChange={(event) => setCustomerName(event.target.value)}
                       placeholder={billingCopy.customer.name}
+                      required
                       value={customerName}
                     />
                   </label>
@@ -406,6 +428,8 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
                       inputMode="tel"
                       onChange={(event) => setMobileNumber(event.target.value)}
                       placeholder={billingCopy.customer.mobileNumber}
+                      required
+                      type="tel"
                       value={mobileNumber}
                     />
                   </label>
@@ -692,16 +716,7 @@ function App({ sidebarOpen = true }: { sidebarOpen?: boolean } = {}) {
               </div>
               <button
                 className="generate-button"
-                onClick={() =>
-                  setNotice(
-                    items.length
-                      ? billingCopy.messages.billGenerated(
-                          paymentMethod,
-                          customerName,
-                        )
-                      : billingCopy.messages.emptyBill,
-                  )
-                }
+                onClick={generateBill}
                 type="button"
               >
                 <span className="check-circle">
